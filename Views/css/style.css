@@ -1,0 +1,9 @@
+/* Archivo: styles.css */
+#sidebar-wrapper {
+    width: 250px;
+}
+
+#page-content-wrapper {
+    flex: 1;
+    padding: 20px;
+}

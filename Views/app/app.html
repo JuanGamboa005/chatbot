@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicación</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        #sidebar-wrapper {
+            min-height: 100vh;
+            margin-left: -15rem;
+            transition: margin 0.25s ease-out;
+        }
+        #sidebar-wrapper .list-group {
+            width: 15rem;
+        }
+        #page-content-wrapper {
+            min-width: 100vw;
+        }
+        #wrapper.toggled #sidebar-wrapper {
+            margin-left: 0;
+        }
+        .list-group-item {
+            cursor: pointer;
+        }
+        .sidebar-heading {
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 1rem;
+            background: #343a40;
+            color: white;
+        }
+        .nav-link {
+            color: #333;
+        }
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <div class="bg-light border-end" id="sidebar-wrapper">
+            <div class="sidebar-heading">Menú</div>
+            <div class="list-group list-group-flush">
+                <a href="#inicio" class="list-group-item list-group-item-action bg-light">Inicio</a>
+                <a href="#guardar_datos" class="list-group-item list-group-item-action bg-light">Guardar Datos</a>
+                <a href="#enviar_wsp" class="list-group-item list-group-item-action bg-light">Enviar WhatsApp</a>
+            </div>
+        </div>
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-primary" id="menu-toggle">Toggle Menu</button>
+                </div>
+            </nav>
+            <div class="container-fluid mt-4" id="content">
+                <h1>Bienvenido a la Aplicación</h1>
+                <p>Seleccione una opción del menú para comenzar.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const content = document.getElementById('content');
+        const sidebarToggle = document.getElementById('menu-toggle');
+
+        sidebarToggle.addEventListener('click', () => {
+            document.getElementById('wrapper').classList.toggle('toggled');
+        });
+
+        const loadContent = async (hash) => {
+            let url;
+            if (hash === '#inicio') {
+                content.innerHTML = `
+                    <h1>Bienvenido a la Aplicación</h1>
+                    <p>Seleccione una opción del menú para comenzar.</p>
+                `;
+                return;
+            } else {
+                url = hash.replace('#', '') + '.html';
+            }
+
+            const response = await fetch(url);
+            if (response.ok) {
+                const text = await response.text();
+                content.innerHTML = text;
+                if (hash === '#guardar_datos') {
+                    loadGuardarDatosScript();
+                }
+            } else {
+                content.innerHTML = '<p>Contenido no encontrado.</p>';
+            }
+        };
+
+        const loadGuardarDatosScript = () => {
+            const datosUsuarios = [
+                { nombre: 'Juan Pérez', edad: 30, telefono: '123456789', email: 'juan@example.com' },
+                { nombre: 'Ana Gómez', edad: 25, telefono: '987654321', email: 'ana@example.com' }
+            ];
+
+            const dataTable = document.getElementById('data-table');
+            const searchBar = document.getElementById('search-bar');
+
+            const renderTable = (data) => {
+                dataTable.innerHTML = '';
+                data.forEach(usuario => {
+                    const row = document.createElement('tr');
+
+                    const nombreCell = document.createElement('td');
+                    nombreCell.textContent = usuario.nombre;
+                    row.appendChild(nombreCell);
+
+                    const edadCell = document.createElement('td');
+                    edadCell.textContent = usuario.edad;
+                    row.appendChild(edadCell);
+
+                    const telefonoCell = document.createElement('td');
+                    telefonoCell.textContent = usuario.telefono;
+                    row.appendChild(telefonoCell);
+
+                    const emailCell = document.createElement('td');
+                    emailCell.textContent = usuario.email;
+                    row.appendChild(emailCell);
+
+                    dataTable.appendChild(row);
+                });
+            };
+
+            searchBar.addEventListener('input', (event) => {
+                const query = event.target.value.toLowerCase();
+                const filteredData = datosUsuarios.filter(usuario => 
+                    usuario.nombre.toLowerCase().includes(query) || 
+                    usuario.edad.toString().includes(query) ||
+                    usuario.telefono.includes(query) || 
+                    usuario.email.toLowerCase().includes(query)
+                );
+                renderTable(filteredData);
+            });
+
+            renderTable(datosUsuarios);
+        };
+
+        window.addEventListener('hashchange', () => {
+            loadContent(window.location.hash);
+        });
+
+        if (window.location.hash) {
+            loadContent(window.location.hash);
+        } else {
+            loadContent('#inicio');
+        }
+    </script>
+</body>
+</html>
